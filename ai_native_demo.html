@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金牌运营的"硅基人"进化之路 - AI Native转型案例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Apple-inspired color palette */
+            --primary-black: #1d1d1f;
+            --secondary-gray: #86868b;
+            --light-gray: #f5f5f7;
+            --white: #ffffff;
+            --accent-blue: #007aff;
+            --accent-green: #30d158;
+            --accent-orange: #ff9500;
+            --accent-red: #ff3b30;
+            --border-light: #d2d2d7;
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--white);
+            color: var(--primary-black);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 17px;
+        }
+
+        /* Navigation - Apple style */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-container {
+            max-width: 1024px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 22px;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 600;
+            color: var(--primary-black);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-black);
+            font-weight: 400;
+            font-size: 17px;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Main content */
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 100px 22px 40px;
+        }
+
+        /* Hero section - Apple style */
+        .hero {
+            text-align: center;
+            padding: 80px 0 100px;
+            background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+            border-radius: 18px;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(0, 122, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 16px;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h2 {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--secondary-gray);
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero .cta-button {
+            display: inline-block;
+            background: var(--primary-black);
+            color: var(--white);
+            padding: 16px 32px;
+            border-radius: 980px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 17px;
+            transition: var(--transition-smooth);
+            position: relative;
+            z-index: 1;
+            border: none;
+            cursor: pointer;
+        }
+
+        .hero .cta-button:hover {
+            background: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Sections - Apple style */
+        .section {
+            margin-bottom: 80px;
+            padding: 60px 0;
+        }
+
+        .section h3 {
+            color: var(--primary-black);
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 50px;
+            text-align: center;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        /* Pain points - Clean cards */
+        .pain-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .pain-point {
+            background: var(--white);
+            padding: 40px 30px;
+            border-radius: 18px;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .pain-point:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent-blue);
+        }
+
+        .pain-point h4 {
+            color: var(--primary-black);
+            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .pain-point p {
+            color: var(--secondary-gray);
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        /* Timeline - Apple style */
+        .timeline {
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-blue), var(--accent-green), var(--accent-orange));
+            border-radius: 1px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 80px;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 18px;
+            margin-left: 40px;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-smooth);
+        }
+
+        .timeline-item:hover {
+            transform: translateX(8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -50px;
+            top: 40px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            border: 4px solid var(--white);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .timeline-item:nth-child(2)::before { 
+            background: var(--accent-green); 
+            box-shadow: 0 0 0 2px var(--accent-green); 
+        }
+        .timeline-item:nth-child(3)::before { 
+            background: var(--accent-orange); 
+            box-shadow: 0 0 0 2px var(--accent-orange); 
+        }
+
+        .timeline-item h4 {
+            color: var(--primary-black);
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .timeline-item p {
+            color: var(--secondary-gray);
+            margin-bottom: 20px;
+            font-size: 17px;
+        }
+
+        .timeline-item ul {
+            color: var(--secondary-gray);
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+
+        .timeline-item li {
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        /* Metrics - Apple style cards */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 30px 20px;
+            background: var(--light-gray);
+            border-radius: 18px;
+            transition: var(--transition-smooth);
+            border: 1px solid var(--border-light);
+        }
+
+        .metric:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            background: var(--white);
+        }
+
+        .metric .number {
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--primary-black);
+            margin-bottom: 8px;
+            display: block;
+            letter-spacing: -1px;
+        }
+
+        .metric .label {
+            font-size: 17px;
+            color: var(--secondary-gray);
+            font-weight: 400;
+        }
+
+        /* Value grid - Apple style */
+        .value-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .value-section h4 {
+            color: var(--primary-black);
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        .value-item {
+            background: var(--white);
+            padding: 24px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-smooth);
+        }
+
+        .value-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .value-item strong {
+            color: var(--primary-black);
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: var(--accent-blue);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        /* Architecture - Apple style */
+        .architecture {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .arch-layer {
+            background: var(--white);
+            padding: 40px 30px;
+            border-radius: 18px;
+            text-align: center;
+            transition: var(--transition-smooth);
+            border: 1px solid var(--border-light);
+        }
+
+        .arch-layer:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .arch-layer h4 {
+            color: var(--primary-black);
+            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .arch-layer p {
+            color: var(--secondary-gray);
+            line-height: 1.5;
+            font-size: 17px;
+        }
+
+        /* Next steps - Apple style */
+        .next-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .step {
+            background: var(--white);
+            padding: 40px 30px;
+            border-radius: 18px;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-smooth);
+        }
+
+        .step:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .step h4 {
+            color: var(--primary-black);
+            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .step p {
+            color: var(--secondary-gray);
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        /* Feedback section - Apple style */
+        .feedback-section {
+            background: var(--light-gray);
+            padding: 60px 40px;
+            border-radius: 18px;
+            text-align: center;
+            margin-top: 40px;
+            border: 1px solid var(--border-light);
+        }
+
+        .feedback-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-black);
+            font-size: 17px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 17px;
+            font-family: inherit;
+            transition: var(--transition-smooth);
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        .submit-btn {
+            background: var(--primary-black);
+            color: var(--white);
+            padding: 16px 32px;
+            border: none;
+            border-radius: 980px;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .container {
+                padding: 80px 16px 20px;
+            }
+            
+            .hero h1 {
+                font-size: 40px;
+            }
+            
+            .hero h2 {
+                font-size: 24px;
+            }
+            
+            .section h3 {
+                font-size: 36px;
+            }
+            
+            .value-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .timeline {
+                padding-left: 30px;
+            }
+            
+            .timeline-item {
+                margin-left: 20px;
+            }
+            
+            .timeline-item::before {
+                left: -35px;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Loading animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-light);
+            border-top: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading animation -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🏆 AI Native转型案例</div>
+            <ul class="nav-links">
+                <li><a href="#overview">概览</a></li>
+                <li><a href="#process">转型过程</a></li>
+                <li><a href="#value">业务价值</a></li>
+                <li><a href="#architecture">技术架构</a></li>
+                <li><a href="#roadmap">推广路径</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero section -->
+        <section class="hero" id="overview">
+            <h1>🏆 金牌运营的"硅基人"进化之路</h1>
+            <h2>从传统人工运营到AI Agent驱动的业务增长</h2>
+            <a href="#process" class="cta-button">探索转型之旅</a>
+        </section>
+
+        <!-- Pain points -->
+        <section class="section fade-in" id="pain-points">
+            <h3>📊 现状痛点分析</h3>
+            <div class="pain-points">
+                <div class="pain-point">
+                    <h4>👥 团队现状</h4>
+                    <p>金牌运营团队：5人，负责1000+酒店的价格策略制定，人工成本高，扩展性差</p>
+                </div>
+                <div class="pain-point">
+                    <h4>⏰ 响应滞后</h4>
+                    <p>人工决策周期：2-3天，响应市场变化滞后，错失最佳定价时机</p>
+                </div>
+                <div class="pain-point">
+                    <h4>📈 数据分散</h4>
+                    <p>价格数据、竞品数据、市场数据分布在多个系统，缺乏统一视图</p>
+                </div>
+                <div class="pain-point">
+                    <h4>🎯 决策质量</h4>
+                    <p>决策质量依赖个人经验，缺乏标准化，策略一致性难以保证</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transformation process -->
+        <section class="section fade-in" id="process">
+            <h3>🚀 转型过程展示</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>数据整合与智能体构建</h4>
+                    <p><strong>具体行动：</strong></p>
+                    <ul>
+                        <li>构建统一数据中台，整合价格、竞品、市场数据</li>
+                        <li>训练价格预测模型，准确率达到85%</li>
+                        <li>开发价格策略Agent，支持实时决策</li>
+                    </ul>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="number">5分钟</span>
+                            <span class="label">数据处理时间</span>
+                        </div>
+                        <div class="metric">
+                            <span class="number">85%</span>
+                            <span class="label">价格预测准确率</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>人机协作模式</h4>
+                    <p><strong>具体行动：</strong></p>
+                    <ul>
+                        <li>运营人员从"执行者"转为"策略制定者"</li>
+                        <li>AI Agent负责日常价格调整，人工负责异常处理</li>
+                        <li>建立人机协作工作流</li>
+                    </ul>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="number">实时</span>
+                            <span class="label">决策响应时间</span>
+                        </div>
+                        <div class="metric">
+                            <span class="number">300%</span>
+                            <span class="label">运营效率提升</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>全自动化运营</h4>
+                    <p><strong>具体行动：</strong></p>
+                    <ul>
+                        <li>AI Agent独立处理90%的价格策略决策</li>
+                        <li>人工仅处理5%的异常情况和10%的战略决策</li>
+                        <li>建立自学习机制，持续优化策略</li>
+                    </ul>
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="number">70%</span>
+                            <span class="label">人工成本降低</span>
+                        </div>
+                        <div class="metric">
+                            <span class="number">95%</span>
+                            <span class="label">策略一致性</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Business value -->
+        <section class="section fade-in" id="value">
+            <h3>💰 业务价值展示</h3>
+            <div class="value-grid">
+                <div class="value-section">
+                    <h4>直接收益</h4>
+                    <div class="value-item">
+                        <strong>TTV增长：</strong>价格策略优化带来<span class="highlight">15%</span>的TTV增长
+                    </div>
+                    <div class="value-item">
+                        <strong>成本降低：</strong>运营成本降低<span class="highlight">70%</span>，年节省200万
+                    </div>
+                    <div class="value-item">
+                        <strong>响应速度：</strong>市场变化响应时间从3天缩短到<span class="highlight">实时</span>
+                    </div>
+                </div>
+                <div class="value-section">
+                    <h4>间接价值</h4>
+                    <div class="value-item">
+                        <strong>扩展性：</strong>从管理1000+酒店扩展到<span class="highlight">5000+</span>酒店，无需增加人手
+                    </div>
+                    <div class="value-item">
+                        <strong>决策质量：</strong>策略一致性从60%提升到<span class="highlight">95%</span>
+                    </div>
+                    <div class="value-item">
+                        <strong>团队转型：</strong>运营人员从执行者升级为<span class="highlight">策略制定者</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical architecture -->
+        <section class="section fade-in" id="architecture">
+            <h3>🏗️ 技术架构展示</h3>
+            <div class="architecture">
+                <div class="arch-layer">
+                    <h4>📊 数据层</h4>
+                    <p>统一数据中台<br>实时数据同步<br>多源数据整合</p>
+                </div>
+                <div class="arch-layer">
+                    <h4>🧠 模型层</h4>
+                    <p>价格预测模型<br>策略决策模型<br>异常检测模型</p>
+                </div>
+                <div class="arch-layer">
+                    <h4>🤖 Agent层</h4>
+                    <p>价格策略Agent<br>异常处理Agent<br>监控Agent</p>
+                </div>
+                <div class="arch-layer">
+                    <h4>💻 应用层</h4>
+                    <p>运营工作台<br>监控面板<br>决策支持系统</p>
+                </div>
+            </div>
+            <div class="feedback-section">
+                <h4 style="color: var(--primary-black); margin-bottom: 20px; font-size: 24px; font-weight: 600;">🔧 技术亮点</h4>
+                <ul style="text-align: left; max-width: 800px; margin: 0 auto; color: var(--secondary-gray); font-size: 17px; line-height: 1.6;">
+                    <li style="margin-bottom: 12px;"><strong style="color: var(--primary-black);">多Agent协同：</strong>价格Agent + 异常处理Agent + 监控Agent，实现智能协作</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: var(--primary-black);">实时决策：</strong>毫秒级响应，支持大规模并发，确保业务连续性</li>
+                    <li><strong style="color: var(--primary-black);">自学习机制：</strong>持续优化，决策质量不断提升，适应市场变化</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section class="section fade-in" id="roadmap">
+            <h3>🎯 推广路径与预期影响</h3>
+            <div class="next-steps">
+                <div class="step">
+                    <h4>📈 横向扩展</h4>
+                    <p>将成功模式复制到其他业务线，实现规模化应用</p>
+                </div>
+                <div class="step">
+                    <h4>🔍 纵向深化</h4>
+                    <p>从价格策略扩展到库存管理、客户服务等全业务场景</p>
+                </div>
+                <div class="step">
+                    <h4>👥 组织升级</h4>
+                    <p>培养更多AI Native运营人才，构建智能化组织</p>
+                </div>
+            </div>
+            <div class="feedback-section">
+                <h4 style="color: var(--primary-black); margin-bottom: 20px; font-size: 24px; font-weight: 600;">🚀 预期影响</h4>
+                <ul style="text-align: left; max-width: 800px; margin: 0 auto; color: var(--secondary-gray); font-size: 17px; line-height: 1.6;">
+                    <li style="margin-bottom: 12px;">3年内实现全业务线AI化运营，成为行业标杆</li>
+                    <li style="margin-bottom: 12px;">运营效率整体提升<span class="highlight">500%</span>，实现质的飞跃</li>
+                    <li>成为行业AI Native转型标杆，引领行业发展</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Feedback section -->
+        <section class="section fade-in">
+            <h3>💬 反馈与建议</h3>
+            <div class="feedback-section">
+                <p style="margin-bottom: 40px; color: var(--secondary-gray); font-size: 17px;">我们重视您的反馈，请分享您对这个AI Native转型案例的看法和建议</p>
+                <form class="feedback-form">
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback">反馈内容</label>
+                        <textarea id="feedback" name="feedback" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">提交反馈</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Page loading animation
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 800);
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.8)';
+            }
+        });
+
+        // Form submission
+        document.querySelector('.feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('感谢您的反馈！我们会认真考虑您的建议。');
+            this.reset();
+        });
+
+        // Number animation
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.metric .number');
+            numbers.forEach(number => {
+                const target = number.textContent;
+                if (target.includes('%')) {
+                    const value = parseInt(target);
+                    let current = 0;
+                    const increment = value / 50;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= value) {
+                            number.textContent = target;
+                            clearInterval(timer);
+                        } else {
+                            number.textContent = Math.floor(current) + '%';
+                        }
+                    }, 30);
+                }
+            });
+        }
+
+        // Trigger number animation when metrics come into view
+        const metricsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateNumbers();
+                    metricsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        document.querySelectorAll('.metrics').forEach(metrics => {
+            metricsObserver.observe(metrics);
+        });
+    </script>
+</body>
+</html>
