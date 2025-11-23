@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turing Engine - 智能策略引擎演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #F5F5F7;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #1D1D1F;
+            --text-primary: #1D1D1F;
+            --text-secondary: #8E8E93;
+            --text-tertiary: #C7C7CC;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --color-primary: #007AFF;
+            --color-success: #34C759;
+            --color-warning: #FF9500;
+            --color-error: #FF3B30;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 32px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 113px;
+            z-index: 99;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-nav-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-button.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--color-primary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .metric-box {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .metric-box:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-change {
+            font-size: 12px;
+            color: var(--color-success);
+            margin-top: 4px;
+        }
+
+        /* Scenario Cards */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .scenario-card {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .scenario-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+        }
+
+        .scenario-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(0, 122, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .scenario-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .scenario-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Strategy Canvas */
+        .strategy-canvas {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 24px 0;
+            min-height: 400px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .operator-node {
+            background: var(--bg-secondary);
+            border: 2px solid var(--color-primary);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: inline-block;
+            margin: 20px;
+            position: relative;
+            min-width: 150px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .operator-node::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-primary);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .operator-node:last-child::after {
+            display: none;
+        }
+
+        .operator-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .operator-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Feature Management */
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .feature-table th,
+        .feature-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .feature-table th {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+            background: var(--bg-primary);
+        }
+
+        .feature-table td {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .feature-table tr:hover {
+            background: var(--bg-primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.success {
+            background: rgba(52, 199, 89, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge.warning {
+            background: rgba(255, 149, 0, 0.1);
+            color: var(--color-warning);
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            margin-bottom: 32px;
+        }
+
+        .dashboard-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .dashboard-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .dashboard-card-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .dashboard-card-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .dashboard-card-change {
+            font-size: 12px;
+            color: var(--color-success);
+        }
+
+        /* Process Flow Image */
+        .process-flow-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .process-flow-image {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+        }
+
+        .process-flow-note {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Sub-process indicators */
+        .sub-process-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .sub-process-item {
+            background: var(--bg-primary);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content,
+            .tab-nav-content,
+            .tab-content {
+                padding: 0 20px;
+            }
+
+            .tab-content {
+                padding: 24px 20px;
+            }
+
+            .scenario-grid,
+            .metrics-grid,
+            .dashboard-grid,
+            .sub-process-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Turing Engine - 智能策略引擎</h1>
+            <p>通过AI+AI工程的技术，学习业务策略，提供智能决策支持，辅助业务科学决策</p>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <div class="tab-nav-content">
+            <button class="tab-button active" data-tab="scenarios">应用场景</button>
+            <button class="tab-button" data-tab="strategy-lab">策略实验室</button>
+            <button class="tab-button" data-tab="ab-experiment">AB实验</button>
+            <button class="tab-button" data-tab="ab-analysis">AB分析</button>
+            <button class="tab-button" data-tab="features">特征管理</button>
+            <button class="tab-button" data-tab="models">模型上线</button>
+            <button class="tab-button" data-tab="dashboard">运营驾驶舱</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Tab 1: 应用场景 -->
+        <div class="tab-content active" id="scenarios">
+            <div class="card">
+                <h2 class="card-title">应用场景</h2>
+                <p class="card-subtitle">内置多种业务场景模块，快速接入和配置</p>
+            </div>
+
+            <div class="scenario-grid">
+                <div class="scenario-card">
+                    <div class="scenario-icon">📋</div>
+                    <div class="scenario-name">Hold单场景</div>
+                    <div class="scenario-desc">
+                        管理酒店预订的Hold单，通过智能策略优化Hold单的释放时机和价格策略，提升转化率和收益。
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-icon">🏨</div>
+                    <div class="scenario-name">包房场景</div>
+                    <div class="scenario-desc">
+                        针对包房业务的智能定价和库存管理，通过动态调整价格和库存分配，优化包房收益。
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-icon">🔍</div>
+                    <div class="scenario-name">AI Search场景</div>
+                    <div class="scenario-desc">
+                        智能搜索场景，通过多路召回和排序算法，提升搜索相关性和用户转化效率。
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-icon">💰</div>
+                    <div class="scenario-name">动态定价场景</div>
+                    <div class="scenario-desc">
+                        基于用户画像、库存、时间等因素的动态定价策略，提升转化率和GMV。
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-icon">✅</div>
+                    <div class="scenario-name">准确率优化场景</div>
+                    <div class="scenario-desc">
+                        提升查价/验价接口准确率，优化渠道缓存策略，提高酒店有产率。
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-icon">📦</div>
+                    <div class="scenario-name">智能配货场景</div>
+                    <div class="scenario-desc">
+                        基于需求预测和库存状态的智能配货策略，优化库存周转和收益。
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">场景配置</h3>
+                <div class="card-content">
+                    <p style="margin-bottom: 16px;">每个场景模块都支持：</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span>快速接入：一键启用场景模块</span>
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span>灵活配置：自定义策略参数和规则</span>
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span>实时监控：查看场景运行状态和效果</span>
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span>AB实验：验证策略效果，科学决策</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: 策略实验室 -->
+        <div class="tab-content" id="strategy-lab">
+            <div class="card">
+                <h2 class="card-title">策略实验室</h2>
+                <p class="card-subtitle">通过策略算子画布编排，灵活组合策略算子，构建策略Pipeline</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">策略算子库</h3>
+                <div class="card-content">
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">酒店圈选算子</div>
+                            <div class="metric-value">15种</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">准确率复核算子</div>
+                            <div class="metric-value">8种</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">价差对齐算子</div>
+                            <div class="metric-value">12种</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">其他算子</div>
+                            <div class="metric-value">20+种</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">策略Pipeline示例：Agoda准确率优化</h3>
+                <div class="card-content">
+                    <div class="strategy-canvas">
+                        <div class="operator-node">
+                            <div class="operator-name">酒店圈选</div>
+                            <div class="operator-desc">选择500家无产酒店</div>
+                        </div>
+                        <div class="operator-node">
+                            <div class="operator-name">准确率复核</div>
+                            <div class="operator-desc">检测价格一致性</div>
+                        </div>
+                        <div class="operator-node">
+                            <div class="operator-name">价差对齐</div>
+                            <div class="operator-desc">自动控价补价</div>
+                        </div>
+                        <div class="operator-node">
+                            <div class="operator-name">价格刷新</div>
+                            <div class="operator-desc">定期更新价格</div>
+                        </div>
+                        <div class="operator-node">
+                            <div class="operator-name">效果监控</div>
+                            <div class="operator-desc">实时监控指标</div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 16px; color: var(--text-secondary);">
+                        通过拖拽算子到画布，连接算子形成Pipeline，即可构建完整的策略流程。
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">算子说明</h3>
+                <div class="card-content">
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>算子名称</th>
+                                <th>功能描述</th>
+                                <th>输入</th>
+                                <th>输出</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>酒店圈选</strong></td>
+                                <td>根据条件筛选目标酒店</td>
+                                <td>酒店列表、筛选条件</td>
+                                <td>筛选后的酒店列表</td>
+                            </tr>
+                            <tr>
+                                <td><strong>准确率复核</strong></td>
+                                <td>检测价格一致性，识别差异</td>
+                                <td>价格数据</td>
+                                <td>准确率报告、差异列表</td>
+                            </tr>
+                            <tr>
+                                <td><strong>价差对齐</strong></td>
+                                <td>自动控价或补价，保证价格一致</td>
+                                <td>价格差异</td>
+                                <td>对齐后的价格</td>
+                            </tr>
+                            <tr>
+                                <td><strong>价格刷新</strong></td>
+                                <td>定期刷新酒店价格</td>
+                                <td>酒店列表、刷新频率</td>
+                                <td>更新后的价格</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: AB实验 -->
+        <div class="tab-content" id="ab-experiment">
+            <div class="card">
+                <h2 class="card-title">AB实验</h2>
+                <p class="card-subtitle">验证策略效果，科学决策是否全量上线</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">实验设计</h3>
+                <div class="card-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div style="background: var(--bg-secondary); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); border-left: 3px solid var(--color-primary);">
+                            <div style="font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">对照组</div>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 6px 0; color: var(--text-secondary);">• 使用原策略</li>
+                                <li style="padding: 6px 0; color: var(--text-secondary);">• 50% 流量</li>
+                                <li style="padding: 6px 0; color: var(--text-secondary);">• 基线准确率 75.6%</li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--bg-secondary); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); border-left: 3px solid var(--color-success);">
+                            <div style="font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">实验组</div>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 6px 0; color: var(--text-secondary);">• 使用新策略</li>
+                                <li style="padding: 6px 0; color: var(--text-secondary);">• 50% 流量</li>
+                                <li style="padding: 6px 0; color: var(--text-secondary);">• 目标准确率 90%+</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">实验配置</h3>
+                <div class="card-content">
+                    <table class="feature-table">
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 500; width: 200px;">实验名称</td>
+                                <td>Agoda渠道准确率优化实验</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">实验周期</td>
+                                <td>4周（基线期4周 + 实验期4周 + 观察期2周）</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">分流方式</td>
+                                <td>用户ID维度分流（确保同一用户始终在同一组）</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">分流比例</td>
+                                <td>50:50</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">样本量</td>
+                                <td>1500家酒店（实验组750 + 对照组750）</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">核心指标</td>
+                                <td>有产率、准确率、TTV、GP、转化率、查验比、查定比</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">实验状态</h3>
+                <div class="card-content">
+                    <div style="margin: 24px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>实验进度</span>
+                            <span>已运行 3周 / 预计 4周</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; background: var(--color-primary); width: 75%; transition: width 1s ease; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 16px;">
+                        <span style="padding: 6px 12px; background: rgba(52, 199, 89, 0.1); color: var(--color-success); border-radius: 6px; font-size: 13px; font-weight: 500;">实验运行中</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: AB分析 -->
+        <div class="tab-content" id="ab-analysis">
+            <div class="card">
+                <h2 class="card-title">AB分析</h2>
+                <p class="card-subtitle">数据收集、指标对比、统计检验、业务价值分析</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">关键指标对比</h3>
+                <div class="card-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div style="background: var(--bg-secondary); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); border-left: 3px solid var(--color-primary);">
+                            <div style="font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">对照组</div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">准确率</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">75.6%</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">有产率</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">12.3%</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">TTV</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">¥2.1M</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">转化率</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">2.8%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: var(--bg-secondary); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); border-left: 3px solid var(--color-success);">
+                            <div style="font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">实验组</div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">准确率</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">91.2%</div>
+                                    <div style="font-size: 12px; color: var(--color-success); margin-top: 4px;">↑ 15.6%</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">有产率</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">18.7%</div>
+                                    <div style="font-size: 12px; color: var(--color-success); margin-top: 4px;">↑ 6.4%</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">TTV</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">¥3.2M</div>
+                                    <div style="font-size: 12px; color: var(--color-success); margin-top: 4px;">↑ 52.4%</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">转化率</div>
+                                    <div style="font-size: 20px; font-weight: 600; color: var(--text-primary);">3.4%</div>
+                                    <div style="font-size: 12px; color: var(--color-success); margin-top: 4px;">↑ 21.4%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">统计显著性检验</h3>
+                <div class="card-content">
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>指标</th>
+                                <th>提升幅度</th>
+                                <th>p值</th>
+                                <th>显著性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>有产率</td>
+                                <td>+6.4%</td>
+                                <td>p < 0.01</td>
+                                <td><span class="badge success">显著</span></td>
+                            </tr>
+                            <tr>
+                                <td>TTV</td>
+                                <td>+52.4%</td>
+                                <td>p < 0.001</td>
+                                <td><span class="badge success">极显著</span></td>
+                            </tr>
+                            <tr>
+                                <td>转化率</td>
+                                <td>+21.4%</td>
+                                <td>p < 0.05</td>
+                                <td><span class="badge success">显著</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">业务价值分析</h3>
+                <div class="card-content">
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">有产酒店增加</div>
+                            <div class="metric-value">96家</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">TTV提升</div>
+                            <div class="metric-value">¥1.1M</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">年化收益预估</div>
+                            <div class="metric-value">¥14.3M</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">ROI</div>
+                            <div class="metric-value">285%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: 特征管理 -->
+        <div class="tab-content" id="features">
+            <div class="card">
+                <h2 class="card-title">特征管理</h2>
+                <p class="card-subtitle">统一特征平台，实现特征的复用、共享与版本管理</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">特征概览</h3>
+                <div class="card-content">
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">总特征数</div>
+                            <div class="metric-value">1,245</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">在线特征</div>
+                            <div class="metric-value">1,128</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">特征复用率</div>
+                            <div class="metric-value">69%</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">今日调用量</div>
+                            <div class="metric-value">2.3M</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">特征列表</h3>
+                <div class="card-content">
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>特征名称</th>
+                                <th>特征类型</th>
+                                <th>数据源</th>
+                                <th>状态</th>
+                                <th>复用次数</th>
+                                <th>最后更新</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>价格特征_历史价格</strong></td>
+                                <td>数值型</td>
+                                <td>价格系统</td>
+                                <td><span class="badge success">在线</span></td>
+                                <td>156</td>
+                                <td>2小时前</td>
+                            </tr>
+                            <tr>
+                                <td><strong>库存特征_当前库存</strong></td>
+                                <td>数值型</td>
+                                <td>库存系统</td>
+                                <td><span class="badge success">在线</span></td>
+                                <td>142</td>
+                                <td>实时</td>
+                            </tr>
+                            <tr>
+                                <td><strong>用户特征_价格敏感度</strong></td>
+                                <td>数值型</td>
+                                <td>用户画像</td>
+                                <td><span class="badge success">在线</span></td>
+                                <td>98</td>
+                                <td>1天前</td>
+                            </tr>
+                            <tr>
+                                <td><strong>酒店特征_地理位置</strong></td>
+                                <td>类别型</td>
+                                <td>酒店基础信息</td>
+                                <td><span class="badge success">在线</span></td>
+                                <td>87</td>
+                                <td>3天前</td>
+                            </tr>
+                            <tr>
+                                <td><strong>行为特征_点击率</strong></td>
+                                <td>数值型</td>
+                                <td>行为日志</td>
+                                <td><span class="badge success">在线</span></td>
+                                <td>76</td>
+                                <td>实时</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">特征平台能力</h3>
+                <div class="card-content">
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span><strong>特征版本管理：</strong>支持特征版本控制，回滚和对比</span>
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span><strong>特征复用：</strong>特征可被多个策略复用，避免重复开发</span>
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span><strong>实时特征：</strong>支持实时特征计算和更新</span>
+                        </li>
+                        <li style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: var(--color-success);">✓</span>
+                            <span><strong>特征监控：</strong>实时监控特征质量、调用量、延迟等指标</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 6: 模型上线 -->
+        <div class="tab-content" id="models">
+            <div class="card">
+                <h2 class="card-title">模型上线</h2>
+                <p class="card-subtitle">模型版本管理、部署、监控和回滚</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">模型列表</h3>
+                <div class="card-content">
+                    <ul style="list-style: none; padding: 0; margin: 24px 0;">
+                        <li style="padding: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">动态定价模型 v2.3</div>
+                                <div style="font-size: 13px; color: var(--text-secondary);">基于XGBoost的动态定价模型，准确率87.3%，AUC 0.892</div>
+                            </div>
+                            <span style="padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; background: rgba(52, 199, 89, 0.1); color: var(--color-success);">在线</span>
+                        </li>
+                        <li style="padding: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">准确率优化模型 v1.5</div>
+                                <div style="font-size: 13px; color: var(--text-secondary);">价格一致性检测模型，准确率91.2%，用于Agoda渠道优化</div>
+                            </div>
+                            <span style="padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; background: rgba(52, 199, 89, 0.1); color: var(--color-success);">在线</span>
+                        </li>
+                        <li style="padding: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">智能推荐模型 v3.1</div>
+                                <div style="font-size: 13px; color: var(--text-secondary);">基于深度学习的推荐模型，CTR提升15.3%</div>
+                            </div>
+                            <span style="padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; background: rgba(52, 199, 89, 0.1); color: var(--color-success);">在线</span>
+                        </li>
+                        <li style="padding: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">库存预测模型 v2.0</div>
+                                <div style="font-size: 13px; color: var(--text-secondary);">LSTM库存预测模型，RMSE 0.124，正在测试中</div>
+                            </div>
+                            <span style="padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; background: rgba(142, 142, 147, 0.1); color: var(--text-secondary);">测试中</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">模型部署流程</h3>
+                <div class="card-content">
+                    <div style="display: flex; align-items: center; gap: 16px; margin: 24px 0; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 150px; text-align: center;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 600;">1</div>
+                            <div style="font-weight: 500; margin-bottom: 4px;">模型训练</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">离线训练和验证</div>
+                        </div>
+                        <div style="color: var(--color-primary); font-size: 20px;">→</div>
+                        <div style="flex: 1; min-width: 150px; text-align: center;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 600;">2</div>
+                            <div style="font-weight: 500; margin-bottom: 4px;">模型评估</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">效果评估和审核</div>
+                        </div>
+                        <div style="color: var(--color-primary); font-size: 20px;">→</div>
+                        <div style="flex: 1; min-width: 150px; text-align: center;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 600;">3</div>
+                            <div style="font-weight: 500; margin-bottom: 4px;">模型部署</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">一键部署到生产</div>
+                        </div>
+                        <div style="color: var(--color-primary); font-size: 20px;">→</div>
+                        <div style="flex: 1; min-width: 150px; text-align: center;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 600;">4</div>
+                            <div style="font-weight: 500; margin-bottom: 4px;">监控告警</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">实时监控和告警</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">模型监控</h3>
+                <div class="card-content">
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">在线模型数</div>
+                            <div class="metric-value">3</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">今日调用量</div>
+                            <div class="metric-value">1.2M</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">平均延迟</div>
+                            <div class="metric-value">8ms</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">成功率</div>
+                            <div class="metric-value">99.8%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 7: 运营驾驶舱 -->
+        <div class="tab-content" id="dashboard">
+            <div class="card">
+                <h2 class="card-title">运营体系驾驶舱</h2>
+                <p class="card-subtitle">按备货、理货、配货、交易、收益5大板块划分的核心指标面板</p>
+            </div>
+
+            <!-- 业务流程参考图 -->
+            <div class="process-flow-container">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">业务流程全景图</h3>
+                <img src="dashboard.png" alt="运营体系业务流程" class="process-flow-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display: none; padding: 40px; text-align: center; background: var(--bg-primary); border-radius: 8px; color: var(--text-secondary);">
+                    <p style="font-size: 16px; margin-bottom: 8px;">📊 业务流程全景图</p>
+                    <p style="font-size: 13px;">备货 → 理货 → 配货 → 交易 → 收益</p>
+                    <p style="font-size: 12px; margin-top: 16px; opacity: 0.7;">（请确保截图文件路径正确）</p>
+                </div>
+                <p class="process-flow-note">参考：完整的业务流程包含供应商匹配、渠道匹配、资源标准化、资源分配、交易转化、收益分析等环节</p>
+            </div>
+
+            <!-- 备货板块 -->
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">📦 备货 - 供应商、直签引入资源；下游渠道、分发资源</h3>
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-content">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">供应商匹配流程</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8;">
+                                    <div>简单匹配 → 筛选型算法 → 同名匹配 → 交叉匹配</div>
+                                    <div style="margin-top: 8px; color: var(--color-primary);">→ 命中 → 查价/验价</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">渠道匹配流程</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8;">
+                                    <div>OSS配置 → Wolf配置 → 推送资源 → 渠道匹配</div>
+                                    <div style="margin-top: 8px; color: var(--color-primary);">→ 查价验</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">总货量</div>
+                        <div class="dashboard-card-value" id="metric-total-stock">20.5w</div>
+                        <div class="dashboard-card-change">↑ 2.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">有产货量</div>
+                        <div class="dashboard-card-value" id="metric-prod-stock">3.8w</div>
+                        <div class="dashboard-card-change">↑ 5.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">有产率</div>
+                        <div class="dashboard-card-value" id="metric-prod-rate">18.5%</div>
+                        <div class="dashboard-card-change">↑ 0.5%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">供应商匹配率</div>
+                        <div class="dashboard-card-value" id="metric-supplier-match">87.3%</div>
+                        <div class="dashboard-card-change">↑ 1.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">渠道匹配率</div>
+                        <div class="dashboard-card-value" id="metric-channel-match">92.5%</div>
+                        <div class="dashboard-card-change">↑ 0.8%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">匹配命中率</div>
+                        <div class="dashboard-card-value" id="metric-match-hit">78.6%</div>
+                        <div class="dashboard-card-change">↑ 2.1%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 理货板块 -->
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">📋 理货 - 确定可售卖资源，明确下游渠道</h3>
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-content">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">资源标准化与量管控（QE）</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">供应商资源画像</div>
+                                    <div class="sub-process-item">商家属性（类型/规模/模式）</div>
+                                    <div class="sub-process-item">安全与风险等级</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">资源价值评估</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">地域/品类/时段/活动</div>
+                                    <div class="sub-process-item">价值标签（高价值/稳定/高风险）</div>
+                                    <div class="sub-process-item">竞争优势</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px; border: 2px dashed var(--color-primary);">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">资源整合</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">供课资源整合</div>
+                                    <div class="sub-process-item">优势资源识别</div>
+                                    <div class="sub-process-item">资源渠道匹配度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">资源标准化率</div>
+                        <div class="dashboard-card-value" id="metric-standard-rate">94.2%</div>
+                        <div class="dashboard-card-change">↑ 1.5%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">资源画像完整度</div>
+                        <div class="dashboard-card-value" id="metric-profile-complete">88.7%</div>
+                        <div class="dashboard-card-change">↑ 2.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">资源渠道匹配度</div>
+                        <div class="dashboard-card-value" id="metric-resource-match">85.3%</div>
+                        <div class="dashboard-card-change">↑ 1.8%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">优势资源占比</div>
+                        <div class="dashboard-card-value" id="metric-advantage-rate">32.5%</div>
+                        <div class="dashboard-card-change">↑ 3.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">高风险资源数</div>
+                        <div class="dashboard-card-value" id="metric-high-risk">234</div>
+                        <div class="dashboard-card-change" style="color: var(--color-error);">↓ 12.5%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">可售卖资源数</div>
+                        <div class="dashboard-card-value" id="metric-sellable">18.2w</div>
+                        <div class="dashboard-card-change">↑ 2.1%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 配货板块 -->
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">🚚 配货 - 根据规则整合资源配置</h3>
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-content">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">资源分配管理</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">OSS配置管理</div>
+                                    <div class="sub-process-item">L2L</div>
+                                    <div class="sub-process-item">开关房</div>
+                                    <div class="sub-process-item">调价</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">渠道管理</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">Wolf配置管理</div>
+                                    <div class="sub-process-item">渠道表现</div>
+                                    <div class="sub-process-item">互售关系管理</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px;">流量漏斗</div>
+                                <div style="font-size: 24px; font-weight: 600; color: var(--color-primary); text-align: center; margin-top: 8px;">1%</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 4px;">查价请求转化率</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">查价请求量（今日）</div>
+                        <div class="dashboard-card-value" id="metric-price-request">125.3K</div>
+                        <div class="dashboard-card-change">↑ 8.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">配货订单数（今日）</div>
+                        <div class="dashboard-card-value" id="metric-dist-order">8,234</div>
+                        <div class="dashboard-card-change">↑ 12.7%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">配货成功率</div>
+                        <div class="dashboard-card-value" id="metric-dist-success">96.8%</div>
+                        <div class="dashboard-card-change">↑ 0.8%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">流量漏斗转化率</div>
+                        <div class="dashboard-card-value" id="metric-funnel-rate">1.2%</div>
+                        <div class="dashboard-card-change">↑ 0.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">平均配货时长</div>
+                        <div class="dashboard-card-value" id="metric-dist-time">2.3s</div>
+                        <div class="dashboard-card-change" style="color: var(--color-success);">↓ 15.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">库存周转率</div>
+                        <div class="dashboard-card-value" id="metric-turnover">3.2</div>
+                        <div class="dashboard-card-change">↑ 5.6%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易板块 -->
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">💰 交易 - 用户查价、验价交易</h3>
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-content">
+                        <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">交易流程</div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary);">
+                                <span>渠道盈利</span>
+                                <span>→</span>
+                                <span>L2L pass</span>
+                                <span>→</span>
+                                <span>rate adjust pass</span>
+                                <span>→</span>
+                                <span>ant pass</span>
+                                <span>→</span>
+                                <span>供应商有价</span>
+                                <span>→</span>
+                                <span style="color: var(--color-primary); font-weight: 500;">Dida 整合有价结果</span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">请求层</div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-primary);">查价</div>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">有价层</div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-primary);">L2L</div>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">展示层</div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-primary);">报价</div>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">结果层</div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-primary);">交易</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">查价请求量（今日）</div>
+                        <div class="dashboard-card-value" id="metric-check-request">125.3K</div>
+                        <div class="dashboard-card-change">↑ 8.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">验价请求量（今日）</div>
+                        <div class="dashboard-card-value" id="metric-verify-request">45.2K</div>
+                        <div class="dashboard-card-change">↑ 8.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">有价率</div>
+                        <div class="dashboard-card-value" id="metric-priced-rate">89.3%</div>
+                        <div class="dashboard-card-change">↑ 2.1%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">查验比</div>
+                        <div class="dashboard-card-value" id="metric-check-verify">36.1%</div>
+                        <div class="dashboard-card-change">↑ 1.5%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">GMV（今日）</div>
+                        <div class="dashboard-card-value" id="metric-gmv">¥12.5M</div>
+                        <div class="dashboard-card-change">↑ 15.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">订单量（今日）</div>
+                        <div class="dashboard-card-value" id="metric-order">8,234</div>
+                        <div class="dashboard-card-change">↑ 12.7%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">转化率</div>
+                        <div class="dashboard-card-value" id="metric-cvr">3.24%</div>
+                        <div class="dashboard-card-change">↑ 8.5%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">客单价</div>
+                        <div class="dashboard-card-value" id="metric-atv">¥1,518</div>
+                        <div class="dashboard-card-change">↑ 2.3%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 收益板块 -->
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">📈 收益 - 成交收钱、结果倒推</h3>
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-content">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">金额指标</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">TTV（总交易价值）</div>
+                                    <div class="sub-process-item">GP（毛利润）</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">体量指标</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">BKS（预订数）</div>
+                                    <div class="sub-process-item">RN（房间夜数）</div>
+                                    <div class="sub-process-item">Hotel（酒店数）</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">价值指标</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">ADR（平均房价）</div>
+                                    <div class="sub-process-item">ABV（平均预订价值）</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">分析维度</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">有产分析</div>
+                                    <div class="sub-process-item">贡献度排名</div>
+                                    <div class="sub-process-item">资源效率</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">实体维度</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">渠道</div>
+                                    <div class="sub-process-item">供应商</div>
+                                    <div class="sub-process-item">市场份额</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--bg-primary); padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px;">收益分析</div>
+                                <div class="sub-process-list">
+                                    <div class="sub-process-item">收益分析</div>
+                                    <div class="sub-process-item">资源价值评估</div>
+                                    <div class="sub-process-item">分销网络</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">GP（今日）</div>
+                        <div class="dashboard-card-value" id="metric-gp">¥2.5M</div>
+                        <div class="dashboard-card-change">↑ 18.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">GP率</div>
+                        <div class="dashboard-card-value" id="metric-gp-rate">20.0%</div>
+                        <div class="dashboard-card-change">↑ 0.5%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">月累计GP</div>
+                        <div class="dashboard-card-value" id="metric-month-gp">¥68.5M</div>
+                        <div class="dashboard-card-change">↑ 12.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">ROI</div>
+                        <div class="dashboard-card-value" id="metric-roi">285%</div>
+                        <div class="dashboard-card-change">↑ 15.2%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">ADR（平均房价）</div>
+                        <div class="dashboard-card-value" id="metric-adr">¥1,485</div>
+                        <div class="dashboard-card-change">↑ 2.1%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">ABV（平均预订价值）</div>
+                        <div class="dashboard-card-value" id="metric-abv">¥1,518</div>
+                        <div class="dashboard-card-change">↑ 2.3%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">资源效率</div>
+                        <div class="dashboard-card-value" id="metric-resource-eff">3.2</div>
+                        <div class="dashboard-card-change">↑ 5.6%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">市场份额</div>
+                        <div class="dashboard-card-value" id="metric-market-share">12.5%</div>
+                        <div class="dashboard-card-change">↑ 0.8%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">实时更新</h3>
+                <div class="card-content">
+                    <p style="color: var(--text-secondary);">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); margin-right: 8px; animation: pulse 2s infinite;"></span>
+                        数据每3秒自动更新
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                
+                // 移除所有active状态
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // 添加active状态
+                button.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // 模拟实时数据更新（运营驾驶舱）
+        function updateDashboardMetrics() {
+            // 备货指标
+            const totalStock = (20.5 + Math.random() * 0.3).toFixed(1);
+            const prodStock = (3.8 + Math.random() * 0.2).toFixed(1);
+            const prodRate = ((prodStock / totalStock) * 100).toFixed(1);
+            
+            // 理货指标
+            const standardRate = (94.2 + Math.random() * 0.5).toFixed(1);
+            const profileComplete = (88.7 + Math.random() * 0.5).toFixed(1);
+            
+            // 配货指标
+            const priceRequest = Math.floor(125300 + Math.random() * 2000);
+            const distOrder = Math.floor(8234 + Math.random() * 200);
+            
+            // 交易指标
+            const gmv = (12.5 + Math.random() * 0.5).toFixed(1);
+            const order = Math.floor(8234 + Math.random() * 200);
+            const cvr = (3.24 + Math.random() * 0.1).toFixed(2);
+            const atv = Math.floor(1518 + Math.random() * 50);
+            
+            // 收益指标
+            const gp = (2.5 + Math.random() * 0.2).toFixed(1);
+            const gpRate = ((gp / gmv) * 100).toFixed(1);
+
+            // 更新DOM（如果元素存在）
+            const updates = {
+                'metric-total-stock': totalStock + 'w',
+                'metric-prod-stock': prodStock + 'w',
+                'metric-prod-rate': prodRate + '%',
+                'metric-supplier-match': (87.3 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-channel-match': (92.5 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-match-hit': (78.6 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-standard-rate': standardRate + '%',
+                'metric-profile-complete': profileComplete + '%',
+                'metric-resource-match': (85.3 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-advantage-rate': (32.5 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-high-risk': Math.floor(234 - Math.random() * 20),
+                'metric-sellable': (18.2 + Math.random() * 0.2).toFixed(1) + 'w',
+                'metric-price-request': (priceRequest / 1000).toFixed(1) + 'K',
+                'metric-dist-order': order.toLocaleString(),
+                'metric-dist-success': (96.8 + Math.random() * 0.3).toFixed(1) + '%',
+                'metric-funnel-rate': (1.2 + Math.random() * 0.1).toFixed(1) + '%',
+                'metric-dist-time': (2.3 - Math.random() * 0.2).toFixed(1) + 's',
+                'metric-turnover': (3.2 + Math.random() * 0.2).toFixed(1),
+                'metric-check-request': (priceRequest / 1000).toFixed(1) + 'K',
+                'metric-verify-request': (45200 + Math.random() * 1000).toLocaleString(),
+                'metric-priced-rate': (89.3 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-check-verify': (36.1 + Math.random() * 0.5).toFixed(1) + '%',
+                'metric-gmv': '¥' + gmv + 'M',
+                'metric-order': order.toLocaleString(),
+                'metric-cvr': cvr + '%',
+                'metric-atv': '¥' + atv,
+                'metric-gp': '¥' + gp + 'M',
+                'metric-gp-rate': gpRate + '%',
+                'metric-month-gp': '¥' + (68.5 + Math.random() * 2).toFixed(1) + 'M',
+                'metric-roi': Math.floor(285 + Math.random() * 10) + '%',
+                'metric-adr': '¥' + Math.floor(1485 + Math.random() * 30),
+                'metric-abv': '¥' + atv,
+                'metric-resource-eff': (3.2 + Math.random() * 0.2).toFixed(1),
+                'metric-market-share': (12.5 + Math.random() * 0.3).toFixed(1) + '%'
+            };
+
+            Object.keys(updates).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = updates[id];
+                }
+            });
+        }
+
+        // 每3秒更新一次数据
+        setInterval(updateDashboardMetrics, 3000);
+
+        // 添加pulse动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
